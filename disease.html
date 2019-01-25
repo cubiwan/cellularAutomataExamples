@@ -1,0 +1,68 @@
+<html>
+<script src="terra.min.js"></script>
+
+<body>
+    <canvas id="ill"></canvas>
+    
+</body>
+
+<script>
+var pc = 0.2; //porb of get illness
+var startIll = 0.01; //prob. of start ill
+var startInmune = 0.05; //prob. of start inmune
+var illDuration = 3; //duration in cicles of illness
+
+var gameOfLife = new terra.Terrarium(50, 50, {
+  trails: 0.9,
+  periodic: true,
+  background: [22, 22, 22]
+});
+
+terra.registerCA({
+  type: 'ill',
+  colorFn: function () { 
+    if(this.isIll){
+      return '255,0,0,1';
+    } else if(this.wasIll){
+      return '200,0,0,1';
+    } else if(this.isInmune){
+      return '0,0,255,1';
+    } else {
+      return '0,255,0,1';
+    }
+  },
+  process: function (neighbors, x, y) {    
+    if(!this.isIll && !this.wasIll && !this.isInmune){
+        var surrounding = neighbors.filter(function (cell) {
+          return cell.creature.isIll;
+        }).length;        
+        if(Math.random() < 1-Math.pow(1-pc, surrounding)){
+          this.isIll = true;
+          this.timesIll = illDuration;
+        }
+    } else {
+      this.timesIll--;
+      if(this.timesIll == 0){
+        this.isIll = false;
+        this.wasIll = true;
+      }
+    }
+    return true;
+  }
+}, function () {
+  var rnd = Math.random();
+  this.isIll = rnd < startIll;
+  if(this.isIll){
+    this.timesIll = illDuration;
+  } else { 
+    this.isInmune = rnd < startIll+startInmune;
+  }
+  this.wasIll = false;  
+});
+
+gameOfLife.grid = gameOfLife.makeGrid('ill');
+gameOfLife.animate();
+
+</script>
+
+</html>
