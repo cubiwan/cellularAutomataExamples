@@ -1,0 +1,75 @@
+<html>
+<script src="terra.min.js"></script>
+
+<body>
+    <canvas id="voronoi"></canvas>
+    
+</body>
+
+<script>
+var colors = [];  
+colors[0] = "255,0,0,1" //red
+colors[1] = "0,255,0,1" //green
+colors[2] = "0,0,255,1" //blue
+colors[3] = "255,255,0,1" //yellow
+colors[4] = "0,255,255,1" //aqua
+colors[5] = "255,0,255,1" //fuchsia
+colors[6] = "0,128,128,1" //teal
+colors[7] = "128,128,128,1" //gray
+
+var initPointProb = 0.001; 
+var initPointsNumber = 0;
+
+var gameOfLife = new terra.Terrarium(100, 100, {
+  trails: 0.9,
+  periodic: true,
+  background: [22, 22, 22]
+});
+
+terra.registerCA({
+  type: 'voronoi',
+  colorFn: function () {     
+    if(this.distance == 0){
+      return "0,0,0,1";
+    }
+    if(this.point == -1){
+      return "255,255,255,1";
+    } else {
+      return colors[this.point];
+    }
+  },
+  process: function (neighbors, x, y) {    
+    if(this.isPoint){
+      return true;
+    } 
+
+    for(var i = 0; i < neighbors.length; ++i){
+      if(neighbors[i].creature.distance < this.distance){
+        this.distance = neighbors[i].creature.distance+1;
+        this.point = neighbors[i].creature.point;
+      }
+    }
+    
+    return true;
+  }
+}, function () {
+  if(initPointsNumber < colors.length){
+    var rnd = Math.random();  
+    this.isPoint = rnd < initPointProb;
+  }
+  if(this.isPoint){
+    this.distance = 0;
+    this.point = initPointsNumber;
+    initPointsNumber++;    
+  } else {
+    this.point = -1;
+    this.distance = 10000;
+  }
+});
+
+gameOfLife.grid = gameOfLife.makeGrid('voronoi');
+gameOfLife.animate();
+
+</script>
+
+</html>
