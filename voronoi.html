@@ -20,10 +20,9 @@ colors[7] = "128,128,128,1" //gray
 var initPointProb = 0.001; 
 var initPointsNumber = 0;
 
-var gameOfLife = new terra.Terrarium(100, 100, {
-  trails: 0.9,
-  periodic: true,
-  background: [22, 22, 22]
+var world = new terra.Terrarium(120, 120, {
+  cellSize: 5,
+  periodic: true
 });
 
 terra.registerCA({
@@ -67,7 +66,7 @@ terra.registerCA({
   }
 });
 
-gameOfLife.grid = gameOfLife.makeGrid('voronoi');
+gameOfLife.grid = world.makeGrid('voronoi');
 gameOfLife.animate();
 
 </script>
