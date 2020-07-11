@@ -1,0 +1,135 @@
+<html>
+<script src="terra.js"></script>
+<script src="terraUtils.js"></script>
+
+<body>
+
+</body>
+
+<script>
+
+terra.registerCA({
+    type: 'RandomSimple',
+    colorFn: function () {     
+        return colors[this.color]
+    },
+    process: function (neighbors, x, y) {
+        if(!this.stubborn){
+            this.color = neighborRandom(neighborsAndMe(neighbors, this)).creature.color;
+        }
+        return true;
+    }}, 
+    function () {
+        if(worldStarted){
+            this.color = 0;        
+            this.stubborn = true; 
+        } else {            
+            this.color = withProbability(0.5, BLUE, RED);
+            this.stubborn = withProbability(config.stubbornProbability, true, false);
+        }
+    }
+);
+
+terra.registerCA({
+    type: 'AverageSimple',
+    colorFn: function () {     
+        return colors[this.color]
+    },
+    process: function (neighbors, x, y) {
+        if(!this.stubborn){
+            var opinionRED = neighborsCount(neighborsAndMe(neighbors, this), 'color', RED);
+            if(opinionRED > 4){ 
+                this.color = RED;
+            } else {
+                this.color = BLUE;
+            }
+        }
+        return true;
+    }}, 
+    function () {   
+        if(worldStarted){
+            this.color = 0;        
+            this.stubborn = true; 
+        } else {         
+            this.color = withProbability(0.5, BLUE, RED);
+            this.stubborn = withProbability(config.stubbornProbability, true, false);
+        }
+    }
+);
+
+terra.registerCA({
+    type: 'RandomExtend',
+    colorFn: function () {     
+        return rb[this.color]
+    },
+    process: function (neighbors, x, y) { 
+        if(!this.stubborn){
+            this.color = neighborRandom(neighborsAndMe(neighbors, this)).creature.color;
+        }
+        return true;
+    }}, 
+    function () {    
+        if(worldStarted){
+            this.color = 0;        
+            this.stubborn = true; 
+        } else {    
+            this.color = intRandom(-8,8);
+            this.stubborn = withProbability(config.stubbornProbability, true, false);
+        }
+    }
+);
+
+terra.registerCA({
+    type: 'AverageExtend',
+    colorFn: function () {     
+        return rb[this.color]
+    },
+    process: function (neighbors, x, y) {
+        if(!this.stubborn){
+            this.color = Math.round(neighborsMean(neighborsAndMe(neighbors, this), 'color'));
+        }
+        return true;
+    }}, 
+    function () {
+        if(worldStarted){
+            this.color = 0;        
+            this.stubborn = true; 
+        } else {
+            this.color = intRandom(-8,8);        
+            this.stubborn = withProbability(config.stubbornProbability, true, false); 
+        }
+    }
+);
+
+config.size = 150;
+config.cellSize = 5;
+config.periodic = true;
+config.ideologyType = "Extend";
+config.selectionType = "Average";
+config.stubbornProbability = 0;
+config.population = config.size*config.size;
+config.grid = config.selectionType+config.ideologyType;
+
+uiAddLabel("label1", "  Ideology: ")
+uiAddButton("simpleButton", "Simple", "config.ideologyType = 'Simple'; config.grid = config.selectionType+config.ideologyType; reload()");
+uiAddButton("extendButton", "Extend", "config.ideologyType = 'Extend'; config.grid = config.selectionType+config.ideologyType; reload()");
+uiAddLabel("label2", "  Selection: ")
+uiAddButton("randomButton", "Random", "config.selectionType = 'Random'; config.grid = config.selectionType+config.ideologyType; reload()");
+uiAddButton("mayorityButton", "Average", "config.selectionType = 'Average'; config.grid = config.selectionType+config.ideologyType; reload()");
+uiAddLabel("label3", "  % Stubborn: ")
+uiAddButton("stubborn0Button", "0%", "config.stubbornProbability = 0; reload()");
+uiAddButton("stubborn10Button", "10%", "config.stubbornProbability = 0.1; reload()");
+uiAddButton("stubborn20Button", "20%", "config.stubbornProbability = 0.2; reload()");
+uiAddLabel("label4", "  Size: ")
+uiAddButton("size50Button", "Small", "config.size = 50; config.population = 50*50; reload()");
+uiAddButton("size150Button", "Medium", "config.size = 150; config.population = 150*150; reload()");
+uiAddButton("size200Button", "Big", "config.size = 200; config.population = 200*200; reload()");
+
+uiAddStatusbar("Ideology", "ideologyType");
+uiAddStatusbar("Decision", "selectionType");
+uiAddStatusbar("Stubborn", "stubbornProbability");
+uiAddStatusbar("Population", "population");
+
+</script>
+
+</html>

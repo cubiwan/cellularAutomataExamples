@@ -1,0 +1,49 @@
+<html>
+<script src="terra.js"></script>
+<script src="terraUtils.js"></script>
+
+<body>
+    
+</body>
+
+<script>
+
+var world = new terra.Terrarium(80, 80, {
+    id: 'RandomWalk',
+    cellSize: 10,
+    periodic: true,
+    neighborhood: 'vonNeumann'
+});
+
+var moveToX = 40;
+var moveToY = 40;
+
+terra.registerCA({
+    type: 'RandomWalk',
+    colorFn: function () {  
+        return colors[this.color];
+    },
+    process: function (neighbors, x, y) {
+        if(this.color == BLUE){
+            this.color = NAVY;
+            var neighbor = neighborRandom(neighbors);         
+            moveToX = neighbor.coords.x;
+            moveToY = neighbor.coords.y;
+        }else {
+            if((x == moveToX) && (y == moveToY)){
+                this.color = BLUE;
+            }
+        }
+        return true;
+    }}, 
+    function () {
+        this.color = WHITE;
+    }
+);
+
+world.grid = world.makeGrid('RandomWalk');
+world.animate();
+
+</script>
+
+</html>

@@ -1,5 +1,5 @@
 <html>
-<script src="terra.min.js"></script>
+<script src="terra.js"></script>
 
 <body>
     <canvas id="voronoi"></canvas>
@@ -8,20 +8,31 @@
 
 <script>
 var colors = [];  
-colors[0] = "255,0,0,1" //red
-colors[1] = "0,255,0,1" //green
-colors[2] = "0,0,255,1" //blue
-colors[3] = "255,255,0,1" //yellow
-colors[4] = "0,255,255,1" //aqua
-colors[5] = "255,0,255,1" //fuchsia
-colors[6] = "0,128,128,1" //teal
-colors[7] = "128,128,128,1" //gray
+colors[0] = "0,0,0,1" //black
+colors[1] = "255,255,255,1" //white
+colors[2] = "255,0,0,1" //red
+colors[3] = "0,0,255,1" //blue
+colors[4] = "0,255,0,1" //lime
+colors[5] = "255,255,0,1" //yellow
+colors[6] = "255,0,255,1" //fucsia
+colors[7] = "0,255,255,1" //cyan
+colors[8] = "255,128,0,1" //orange
+colors[9] = "160,160,160,1" //gray
+colors[10] = "128,0,0,1" //maroon
+colors[11] = "0,0,128,1" //navy
+colors[12] = "0,128,0,1" //green
+colors[13] = "128,128,0,1" //gold
+colors[14] = "128,0,128,1" //purple
+colors[15] = "0,128,128,1" //teal
+colors[16] = "128,64,0,1" //brown
+
 
 var initPointProb = 0.001; 
 var initPointsNumber = 0;
 
-var world = new terra.Terrarium(120, 120, {
-  cellSize: 5,
+var world = new terra.Terrarium(150, 150, {
+  id:"voronoi",
+  cellSize: 3,
   periodic: true
 });
 
@@ -29,15 +40,15 @@ terra.registerCA({
   type: 'voronoi',
   colorFn: function () {     
     if(this.distance == 0){
-      return "0,0,0,1";
+      return colors[0];
     }
     if(this.isBorder){
-      return "0,0,0,1";
+      return colors[0];
     }
     if(this.point == -1){
-      return "255,255,255,1";
+      return colors[1];
     } else {
-      return colors[this.point];
+      return colors[this.point+2];
     }
   },
   process: function (neighbors, x, y) {    
@@ -60,7 +71,7 @@ terra.registerCA({
   }
 }, function () {
   this.isBorder = false;
-  if(initPointsNumber < colors.length){
+  if(initPointsNumber < colors.length-2){
     var rnd = Math.random();  
     this.isPoint = rnd < initPointProb;
   }
