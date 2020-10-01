@@ -7,6 +7,11 @@
 var world;
 var worldStarted = false;
 var config = {};
+config.size = 150;
+config.cellSize = 5;
+config.periodic = true;
+config.population = config.size*config.size;
+config.pixels = config.size*config.cellSize;
 
 
 /*************************************
@@ -125,52 +130,49 @@ const BROWN = 16;
  *  User Interface
  * 
 *************************************/
-
-var statusbar = [];
-var toolbar = [];
+var toolbar;
 
 function uiCreateToolbar(){
-    document.body.innerHTML += '<div id="toolbar"></div>';
-}
+    document.body.innerHTML += '<div id="toolbar" style="width: 300px"></div>';
 
-function uiAddButton(id, text, onclick){
-    toolbar.push({id:id, text:text, onclick:onclick});
-}
+    toolbar = new Tweakpane({
+        title: 'Controls',
+        container: document.getElementById('toolbar')
+    });
 
-function uiAddLabel(id, text){
-    toolbar.push({id:id, text:text});
-}
+    toolbar.addButton({title: 'Play'}).on('click', () => {play()});
+    toolbar.addButton({title: 'Stop'}).on('click', () => {world.stop()});
+    toolbar.addButton({title: 'Step'}).on('click', () => {play(1)});
+    toolbar.addButton({title: 'Reload'}).on('click', () => {reload()});
+    
+    toolbar.addSeparator() 
 
-function uiUpdateToolbar(){
-    var toolbarHTML = ""        
-    for(var i = 0; i < toolbar.length; ++i){
-        if(toolbar[i].onclick){
-            toolbarHTML += '<button id="'+toolbar[i].id+'" onclick="'+toolbar[i].onclick+'">'+toolbar[i].text+'</button>';
-        } else {
-            toolbarHTML += '<span id="'+toolbar[i].id+'">'+toolbar[i].text+'</button>';
-        }
-    }    
-    document.getElementById("toolbar").innerHTML = toolbarHTML;
-}
+    toolbar.addInput(config, 'size', {
+        label: 'Size:',
+        min: 10,
+        max: 300,
+        step: 10   
+    }).on('change', () => {
+        config.population = config.size*config.size;
+        config.pixels = config.size*config.cellSize;             
+        reload();
+    });   
+    toolbar.addMonitor(config, 'population');
 
+    toolbar.addInput(config, 'cellSize', {
+        label: 'Cell:',
+        min: 1,
+        max: 10,
+        step: 1   
+    }).on('change', () => {
+        config.pixels = config.size*config.cellSize;    
+        reload();
+    });      
+    toolbar.addMonitor(config, 'pixels');
 
+    toolbar.addSeparator();
 
-
-function uiCreateStatusbar(){
-    document.body.innerHTML += '<div id="statusbar"></div>';
-}
-
-function uiAddStatusbar(name, valueOf){
-    statusbar.push({name:name, valueOf:valueOf});
-}
-
-function uiUpdateStatusbar(){
-    var statusHTML = "<h4>"        
-    for(var i = 0; i < statusbar.length; ++i){
-        statusHTML +=  statusbar[i].name+": "+config[statusbar[i].valueOf]+"&nbsp;&nbsp;&nbsp;";
-    }    
-    statusHTML += "</h4>"
-    document.getElementById("statusbar").innerHTML = statusHTML;
+    return toolbar;
 }
 
 function play(i){
@@ -191,25 +193,13 @@ function reload(){
     worldStarted = false;
     world = new terra.Terrarium(config.size, config.size, config);
     makeGrid();
-    worldStarted = true;    
-    uiUpdateStatusbar();
+    worldStarted = true;
 }
 
 function makeGrid(){
     world.grid = world.makeGrid(config.grid);
 }
 
-uiAddButton("playButton", "Play", "play()");
-uiAddButton("stopButton", "Stop", "world.stop()");
-uiAddButton("stepButton", "Step", "play(1)");
-uiAddButton("reloadButton", "Reload", "reload()");   
-
-window.onload = function() {
-    uiCreateToolbar();
-    uiCreateStatusbar();
-    uiUpdateToolbar();
-    uiUpdateStatusbar();
-};
 
 
 

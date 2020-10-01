@@ -1,5 +1,6 @@
 <html>
 <script src="terra.js"></script>
+<script src="tweakpane-1.5.5.min.js"></script>
 <script src="terraUtils.js"></script>
 
 <body>
@@ -25,7 +26,7 @@ terra.registerCA({
             this.stubborn = true; 
         } else {            
             this.color = withProbability(0.5, BLUE, RED);
-            this.stubborn = withProbability(config.stubbornProbability, true, false);
+            this.stubborn = withProbability(config.stubbornProbability/100, true, false);
         }
     }
 );
@@ -52,7 +53,7 @@ terra.registerCA({
             this.stubborn = true; 
         } else {         
             this.color = withProbability(0.5, BLUE, RED);
-            this.stubborn = withProbability(config.stubbornProbability, true, false);
+            this.stubborn = withProbability(config.stubbornProbability/100, true, false);
         }
     }
 );
@@ -74,7 +75,7 @@ terra.registerCA({
             this.stubborn = true; 
         } else {    
             this.color = intRandom(-8,8);
-            this.stubborn = withProbability(config.stubbornProbability, true, false);
+            this.stubborn = withProbability(config.stubbornProbability/100, true, false);
         }
     }
 );
@@ -96,39 +97,44 @@ terra.registerCA({
             this.stubborn = true; 
         } else {
             this.color = intRandom(-8,8);        
-            this.stubborn = withProbability(config.stubbornProbability, true, false); 
+            this.stubborn = withProbability(config.stubbornProbability/100, true, false); 
         }
     }
 );
 
-config.size = 150;
-config.cellSize = 5;
-config.periodic = true;
 config.ideologyType = "Extend";
 config.selectionType = "Average";
 config.stubbornProbability = 0;
-config.population = config.size*config.size;
 config.grid = config.selectionType+config.ideologyType;
 
-uiAddLabel("label1", "  Ideology: ")
-uiAddButton("simpleButton", "Simple", "config.ideologyType = 'Simple'; config.grid = config.selectionType+config.ideologyType; reload()");
-uiAddButton("extendButton", "Extend", "config.ideologyType = 'Extend'; config.grid = config.selectionType+config.ideologyType; reload()");
-uiAddLabel("label2", "  Selection: ")
-uiAddButton("randomButton", "Random", "config.selectionType = 'Random'; config.grid = config.selectionType+config.ideologyType; reload()");
-uiAddButton("mayorityButton", "Average", "config.selectionType = 'Average'; config.grid = config.selectionType+config.ideologyType; reload()");
-uiAddLabel("label3", "  % Stubborn: ")
-uiAddButton("stubborn0Button", "0%", "config.stubbornProbability = 0; reload()");
-uiAddButton("stubborn10Button", "10%", "config.stubbornProbability = 0.1; reload()");
-uiAddButton("stubborn20Button", "20%", "config.stubbornProbability = 0.2; reload()");
-uiAddLabel("label4", "  Size: ")
-uiAddButton("size50Button", "Small", "config.size = 50; config.population = 50*50; reload()");
-uiAddButton("size150Button", "Medium", "config.size = 150; config.population = 150*150; reload()");
-uiAddButton("size200Button", "Big", "config.size = 200; config.population = 200*200; reload()");
+var toolbar = uiCreateToolbar();
 
-uiAddStatusbar("Ideology", "ideologyType");
-uiAddStatusbar("Decision", "selectionType");
-uiAddStatusbar("Stubborn", "stubbornProbability");
-uiAddStatusbar("Population", "population");
+toolbar.on('change', () => {
+    config.grid = config.selectionType+config.ideologyType;    
+    reload();
+});
+
+toolbar.addInput(config, 'ideologyType', {
+    label: 'Ideology:',
+    options: {
+        Simple: 'Simple',
+        Extend: 'Extend'
+    },
+});
+toolbar.addInput(config, 'selectionType', {
+    label: 'Selection:',
+    options: {
+        Random: 'Random',
+        Average: 'Average'
+    },
+});
+toolbar.addInput(config, 'stubbornProbability', {
+    label: 'Stubborn(%):',
+    min: 0,
+    max: 100,
+    step: 1   
+});
+
 
 </script>
 
