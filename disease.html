@@ -2,6 +2,7 @@
 <script src="terra.js"></script>
 <script src="tweakpane-1.5.5.min.js"></script>
 <script src="terraUtils.js"></script>
+<link rel="stylesheet" href="terraUtils.css">
 
 <body>
 
@@ -21,6 +22,7 @@ stats.ills = 0;
 stats.recovered = 0;
 stats.rt = 0;
 stats.herdImmunity = 0;
+stats.noInfectedPer = 0;
 
 var ills = 0;
 var recovered = 0;
@@ -29,8 +31,7 @@ terra.registerCA({
   type: 'ill',
   colorFn: function () { 
     if(this.isIll){
-      ills++;
-      //return '255,0,0,1';
+      ills++;      
       return config.illColor
     } else if(this.wasIll){
       recovered++;
@@ -42,15 +43,6 @@ terra.registerCA({
     }
   },
   process: function (neighbors, x, y) {    
-    if((x == 0) && (y == 0)){
-      stats.ills = ills;
-      stats.recovered = recovered;
-      stats.rt = config.r0 * (1 - ((ills+recovered)/config.population))
-      stats.herdImmunity = 1-(1/config.r0);
-      ills = 0;
-      recovered = 0;
-    }
-
     if(!this.isIll && !this.wasIll && !this.isInmune){
       var surrounding = neighborsCount(neighbors, 'isIll', true);
       if(Math.random() < 1-Math.pow(1-config.pc, surrounding)){
@@ -156,6 +148,24 @@ toolbar.addMonitor(stats, 'ills');
 toolbar.addMonitor(stats, 'recovered');
 toolbar.addMonitor(stats, 'rt', {label: 'Rt'});
 toolbar.addMonitor(stats, 'herdImmunity', {label: 'Herd Immunity'});
+
+toolbar.addMonitor(stats, 'noInfectedPer', {
+  view: 'graph',
+  label: '% Never infected',
+  min: 0,
+  max: 100,
+});
+
+function eachCicle(){    
+  stats.ills = ills;
+  stats.noInfectedPer = 100 * (config.population - (ills + recovered))/config.population;
+  stats.recovered = recovered;
+  stats.rt = config.r0 * (1 - ((ills+recovered)/config.population))
+  stats.herdImmunity = 1-(1/config.r0);
+  ills = 0;
+  recovered = 0;
+}
+
 </script>
 
 </html>

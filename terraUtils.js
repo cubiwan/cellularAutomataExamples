@@ -12,6 +12,7 @@ config.cellSize = 5;
 config.periodic = true;
 config.population = config.size*config.size;
 config.pixels = config.size*config.cellSize;
+config.cicles = 0;
 
 
 /*************************************
@@ -19,7 +20,6 @@ config.pixels = config.size*config.cellSize;
  *  Colors
  * 
 *************************************/
-
 
 var colors = [];  
 colors[0] = "0,0,0,1" //black
@@ -31,14 +31,18 @@ colors[5] = "255,255,0,1" //yellow
 colors[6] = "255,0,255,1" //fucsia
 colors[7] = "0,255,255,1" //cyan
 colors[8] = "255,128,0,1" //orange
-colors[9] = "160,160,160,1" //gray
-colors[10] = "128,0,0,1" //maroon
-colors[11] = "0,0,128,1" //navy
-colors[12] = "0,128,0,1" //green
-colors[13] = "128,128,0,1" //gold
-colors[14] = "128,0,128,1" //purple
-colors[15] = "0,128,128,1" //teal
-colors[16] = "128,64,0,1" //brown
+colors[9] = "255,192,203,1" //pink
+colors[10] = "127,255,212,1" //aquamarine
+colors[11] = "160,160,160,1" //gray
+colors[12] = "128,0,0,1" //maroon
+colors[13] = "0,0,128,1" //navy
+colors[14] = "0,128,0,1" //green
+colors[15] = "128,128,0,1" //gold
+colors[16] = "128,0,128,1" //purple
+colors[17] = "0,128,128,1" //teal
+colors[18] = "128,64,0,1" //brown
+colors[19] = "199,21,133,1" //violet
+colors[19] = "0,206,209" //turquoise
 
 colors[true] = "255,255,255,1" //white
 colors[false] = "0,0,0,1" //black
@@ -102,7 +106,7 @@ rb[6] = "0,0,215,1";
 rb[7] = "0,0,235,1";
 rb[8] = "0,0,255,1";
 
-const DARK = 8;
+const DARK = 10; // DARK_COLOR = COLOR[1-10] + DARK;  NAVY = BLUE + DARK
 
 const BLACK = 0;
 const WHITE = 1;
@@ -113,16 +117,18 @@ const YELLOW = 5;
 const FUCSIA = 6;
 const CYAN = 7;
 const ORANGE = 8;
-const GRAY = 9;
-const MAROON = 10;
-const NAVY = 11;
-const GREEN = 12;
-const GOLD = 13;
-const PURPLE = 14;
-const TEAL = 15;
-const BROWN = 16;
-
-
+const PINK = 9;
+const AQUAMARINE = 10;
+const GRAY = 11;
+const MAROON = 12;
+const NAVY = 13;
+const GREEN = 14;
+const GOLD = 15;
+const PURPLE = 16;
+const TEAL = 17;
+const BROWN = 18;
+const VIOLET = 19;
+const TURQUOISE = 20;
 
 
 /*************************************
@@ -133,7 +139,20 @@ const BROWN = 16;
 var toolbar;
 
 function uiCreateToolbar(){
-    document.body.innerHTML += '<div id="toolbar" style="width: 300px"></div>';
+    document.body.innerHTML +=  "<div class='page'>"+
+                                    "<div class='row'>"+
+                                        "<div class='column1'>"+
+                                            "<div id='toolbar' class='controls'>"+    
+                                            "</div>"+
+                                        "</div>"+                                    
+                                        "<div class='column2'>"+
+                                            "<div id='world' class='world'>"+
+                                                "<span id='insertHere'></span>"+
+                                            "</div>"+
+                                        "</div>"+
+                                    "</div>"+
+                                "</div>";
+
 
     toolbar = new Tweakpane({
         title: 'Controls',
@@ -150,14 +169,14 @@ function uiCreateToolbar(){
     toolbar.addInput(config, 'size', {
         label: 'Size:',
         min: 10,
-        max: 300,
+        max: 400,
         step: 10   
     }).on('change', () => {
         config.population = config.size*config.size;
         config.pixels = config.size*config.cellSize;             
         reload();
     });   
-    toolbar.addMonitor(config, 'population');
+    toolbar.addMonitor(config, 'population', {label: 'Population:'});
 
     toolbar.addInput(config, 'cellSize', {
         label: 'Cell:',
@@ -168,7 +187,8 @@ function uiCreateToolbar(){
         config.pixels = config.size*config.cellSize;    
         reload();
     });      
-    toolbar.addMonitor(config, 'pixels');
+    toolbar.addMonitor(config, 'pixels', {label: 'Width/Height(px):'});
+    toolbar.addMonitor(config, 'cicles', {label: 'Cicles:'});
 
     toolbar.addSeparator();
 
@@ -180,20 +200,29 @@ function play(i){
         reload();
     }
     if(i) {
-        world.animate(i);
+        world.animate(i, countCicles);
     } else {
-        world.animate();
+        world.animate(countCicles);
     }
 }
 
-function reload(){
+function countCicles(){
+    config.cicles++;
+    eachCicle(config.cicles);
+}
+
+function reload(){    
     if(world){
         world.destroy();
     }
+    config.cicles = 0;
     worldStarted = false;
-    world = new terra.Terrarium(config.size, config.size, config);
+    config.insertAfter = document.getElementById('insertHere'); //if doesn't exist insertAfter = null 
+    world = new terra.Terrarium(config.size, config.size, config);    
     makeGrid();
+    initWorld();
     worldStarted = true;
+    eachCicle(0);
 }
 
 function makeGrid(){
@@ -201,21 +230,17 @@ function makeGrid(){
 }
 
 
+function eachCicle(cicle){}
+
+function initWorld(){}
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
+/*************************************
+ * 
+ *  Probability
+ * 
+*************************************/
 
 
 function withProbability(p, valueP, valueNoP){
@@ -227,8 +252,16 @@ function withProbability(p, valueP, valueNoP){
 }
 
 function intRandom(min, max) {  
-    return Math.floor(Math.random() * (max - min + 1) + min);
+    return Math.floor(Math.random() * ((max - min) + 1) + min);
 }
+
+
+/*************************************
+ * 
+ *  Neighbors
+ * 
+*************************************/
+
 
 function neighborRandom(neighbors){
     var index = intRandom(0, neighbors.length-1);
@@ -241,6 +274,17 @@ function neighborsCount(neighbors, property, value){
     for(var i = 0; i < neighbors.length; ++i){
         if(neighbors[i].creature[property] == value){
             number++;
+        }
+    }
+    return number;
+}
+
+//Counts how many neighbors return condition as true (condition is a function pass as parameter)
+function neighborsCondition(neighbors, condition){
+    var number = 0;
+    for(var i = 0; i < neighbors.length; ++i){
+        if(condition(neighbors[i].creature,i)){
+            number++
         }
     }
     return number;

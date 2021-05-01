@@ -1,22 +1,18 @@
 <html>
-<script src="terra.js"></script>
-<script src="terraUtils.js"></script>
+    <script src="terra.js"></script>
+    <script src="tweakpane-1.5.5.min.js"></script>
+    <script src="terraUtils.js"></script>
+    <link rel="stylesheet" href="terraUtils.css">
+  
 
 <body>
-    
+<H1>Random walk with C.A.</H1> 
 </body>
 
 <script>
 
-var world = new terra.Terrarium(80, 80, {
-    id: 'RandomWalk',
-    cellSize: 10,
-    periodic: true,
-    neighborhood: 'vonNeumann'
-});
-
-var moveToX = 40;
-var moveToY = 40;
+var moveToX = 0;
+var moveToY = 0;
 
 terra.registerCA({
     type: 'RandomWalk',
@@ -25,7 +21,7 @@ terra.registerCA({
     },
     process: function (neighbors, x, y) {
         if(this.color == BLUE){
-            this.color = NAVY;
+            this.color = WHITE;
             var neighbor = neighborRandom(neighbors);         
             moveToX = neighbor.coords.x;
             moveToY = neighbor.coords.y;
@@ -37,12 +33,28 @@ terra.registerCA({
         return true;
     }}, 
     function () {
-        this.color = WHITE;
+        this.color = BLACK;
     }
 );
 
-world.grid = world.makeGrid('RandomWalk');
-world.animate();
+config.grid = "RandomWalk";
+config.cellSize = 8;
+config.periodic = false;
+config.neighborhood = 'vonNeumann';
+config.center = 60;
+config.size = 120;
+
+var toolbar = uiCreateToolbar();
+
+toolbar.on('change', () => {
+    config.center = Math.floor(config.size/2);
+    reload();
+});
+
+function initWorld(){
+    moveToX = config.center;
+    moveToY = config.center;
+};
 
 </script>
 

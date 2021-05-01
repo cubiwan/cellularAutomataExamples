@@ -1,47 +1,25 @@
 <html>
-<script src="terra.js"></script>
+  <script src="terra.js"></script>
+  <script src="tweakpane-1.5.5.min.js"></script>
+  <script src="terraUtils.js"></script>
+  <link rel="stylesheet" href="terraUtils.css">
 
 <body>
-    <canvas id="voronoi"></canvas>
     
 </body>
 
 <script>
 
-
-var colors = [];  
-colors[0] = "0,0,0,1" //black
-colors[1] = "255,255,255,1" //white
-colors[2] = "255,0,0,1" //red
-colors[3] = "0,0,255,1" //blue
-colors[4] = "0,255,0,1" //lime
-colors[5] = "255,255,0,1" //yellow
-colors[6] = "255,0,255,1" //fucsia
-colors[7] = "0,255,255,1" //cyan
-colors[8] = "255,128,0,1" //orange
-colors[9] = "160,160,160,1" //gray
-colors[10] = "128,0,0,1" //maroon
-colors[11] = "0,0,128,1" //navy
-colors[12] = "0,128,0,1" //green
-colors[13] = "128,128,0,1" //gold
-colors[14] = "128,0,128,1" //purple
-colors[15] = "0,128,128,1" //teal
-colors[16] = "128,64,0,1" //brown
-
-
 var initPointProb = 0.001; 
 var initPointsNumber = 0;
-
-var world = new terra.Terrarium(150, 150, {
-  id: "voronoi",
-  cellSize: 3,
-  periodic: true
-});
 
 terra.registerCA({
   type: 'voronoi',
   colorFn: function () {     
     if(this.distance == 0){
+      return colors[0];
+    }
+    if(this.isBorder && config.showBorders){
       return colors[0];
     }
     if(this.point == -1){
@@ -54,8 +32,12 @@ terra.registerCA({
     if(this.isPoint){
       return true;
     } 
-
+    this.isBorder = false;
     for(var i = 0; i < neighbors.length; ++i){
+      if(neighbors[i].creature.point != this.point){
+        this.isBorder = true;
+      }
+
       if(neighbors[i].creature.distance < this.distance){
         this.distance = neighbors[i].creature.distance+1;
         this.point = neighbors[i].creature.point;
@@ -65,22 +47,40 @@ terra.registerCA({
     return true;
   }
 }, function () {
-  if(initPointsNumber < colors.length-2){
-    var rnd = Math.random();  
-    this.isPoint = rnd < initPointProb;
-  }
-  if(this.isPoint){
+  if(worldStarted){
+    this.isBorder = false;
     this.distance = 0;
-    this.point = initPointsNumber;
-    initPointsNumber++;    
+    this.isPoint = false;
+    this.ditance = 0;
   } else {
-    this.point = -1;
-    this.distance = 10000;
+    this.isBorder = false;
+    if(initPointsNumber < colors.length-2){
+      var rnd = Math.random();  
+      this.isPoint = rnd < initPointProb;
+    }
+    if(this.isPoint){
+      this.distance = 0;
+      this.point = initPointsNumber;
+      initPointsNumber++;    
+    } else {
+      this.point = -1;
+      this.distance = 10000;
+    }
   }
 });
 
-world.grid = world.makeGrid('voronoi');
-world.animate();
+config.grid = "voronoi";
+config.cellSize = 4;
+config.size = 150;
+config.showBorders = false;
+
+var toolbar = uiCreateToolbar();
+
+toolbar.addInput(config, 'showBorders');
+
+function initWorld(){
+  initPointsNumber = 0; //reset for next simulation
+};
 
 </script>
 

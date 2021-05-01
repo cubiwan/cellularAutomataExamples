@@ -1,7 +1,8 @@
 <html>
-<script src="terra.js"></script>
-<script src="tweakpane-1.5.5.min.js"></script>
-<script src="terraUtils.js"></script>
+    <script src="terra.js"></script>
+    <script src="tweakpane-1.5.5.min.js"></script>
+    <script src="terraUtils.js"></script>
+    <link rel="stylesheet" href="terraUtils.css">
 
 <body>
 
@@ -9,9 +10,28 @@
 
 <script>
 
+var blues = 0;
+var reds = 0;
+var neutrals = 0;
+var meanBlue = 0;
+var meanRed = 0;
+var stats = [];
+stats.red = 0;
+stats.blue = 0;
+stats.neutral = 0;
+stats.meanBlue = 0;
+stats.meanRed = 0;
+
 terra.registerCA({
     type: 'RandomSimple',
-    colorFn: function () {     
+    colorFn: function () {
+        if(this.color == BLUE){
+            blues++;
+            meanBlue++;
+        }else {
+            reds++;
+            meanRed++;
+        }
         return colors[this.color]
     },
     process: function (neighbors, x, y) {
@@ -33,7 +53,14 @@ terra.registerCA({
 
 terra.registerCA({
     type: 'AverageSimple',
-    colorFn: function () {     
+    colorFn: function () {
+        if(this.color == BLUE){
+            blues++;
+            meanBlue++;
+        }else {
+            reds++;
+            meanRed++;
+        }
         return colors[this.color]
     },
     process: function (neighbors, x, y) {
@@ -60,7 +87,16 @@ terra.registerCA({
 
 terra.registerCA({
     type: 'RandomExtend',
-    colorFn: function () {     
+    colorFn: function () {
+        if(this.color < 0){
+            reds++;
+            meanRed -= this.color;
+        }else if (this.color > 0) {
+            blues++;
+            meanBlue += this.color;
+        } else {
+            neutrals++;
+        }     
         return rb[this.color]
     },
     process: function (neighbors, x, y) { 
@@ -82,7 +118,16 @@ terra.registerCA({
 
 terra.registerCA({
     type: 'AverageExtend',
-    colorFn: function () {     
+    colorFn: function () {
+        if(this.color < 0){
+            reds++;
+            meanRed -= this.color;
+        }else if (this.color > 0) {
+            blues++;
+            meanBlue += this.color;
+        } else {
+            neutrals++;
+        }            
         return rb[this.color]
     },
     process: function (neighbors, x, y) {
@@ -97,7 +142,7 @@ terra.registerCA({
             this.stubborn = true; 
         } else {
             this.color = intRandom(-8,8);        
-            this.stubborn = withProbability(config.stubbornProbability/100, true, false); 
+            this.stubborn = withProbability(config.stubbornProbability/100, true, false);
         }
     }
 );
@@ -135,6 +180,47 @@ toolbar.addInput(config, 'stubbornProbability', {
     step: 1   
 });
 
+toolbar.addMonitor(stats, 'red', {
+  view: 'graph',
+  label: 'Red %',
+  min: 0,
+  max: 100,
+});
+
+toolbar.addMonitor(stats, 'blue', {
+  view: 'graph',
+  label: 'Blue %',
+  min: 0,
+  max: 100,
+});
+
+toolbar.addMonitor(stats, 'neutral', {
+  view: 'graph',
+  label: 'Neutral %',
+  min: 0,
+  max: 100,
+});
+
+toolbar.addMonitor(stats, 'meanRed', {
+  label: 'Mean Red',
+});
+
+toolbar.addMonitor(stats, 'meanBlue', {
+  label: 'Mean Blue',
+});
+
+function eachCicle(){
+  stats.red = 100*reds/config.population;
+  stats.blue = 100*blues/config.population;
+  stats.neutral = 100*neutrals/config.population;
+  stats.meanBlue = meanBlue / reds;
+  stats.meanRed = meanRed / blues;
+  reds = 0;
+  blues = 0;
+  neutrals = 0;
+  meanRed = 0;
+  meanBlue = 0;
+}
 
 </script>
 

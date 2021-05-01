@@ -1,0 +1,93 @@
+<html>
+    <script src="terra.js"></script>
+    <script src="tweakpane-1.5.5.min.js"></script>
+    <script src="terraUtils.js"></script>
+    <link rel="stylesheet" href="terraUtils.css">
+
+<body>
+    
+</body>
+
+<script>
+
+var stats = [];
+stats['news'] = 0;
+var news = 0;
+
+terra.registerCA({
+    type: 'UlamWarburton',
+    colorFn: function () {  
+        if(this.state == 2){
+            news++;
+        }
+        return colors[this.state];
+    },
+    process: function (neighbors, x, y) {
+        if(this.state == 1){
+            return true;
+        }
+
+        if(this.state == 2){
+            this.state = 1;
+            return true;
+        }
+        
+        //state == 0
+        if((x == config.center) && (y == config.center)){
+            this.state = 2;
+        } else if(neighborsCondition(neighbors, function(cell){return (cell["state"] > 0)}) == 1){
+            this.state = 2;
+        }
+
+        return true;
+    }}, 
+    function () {
+        this.state = 0;
+    });
+
+
+config.grid = "UlamWarburton";
+config.cellSize = 4;
+config.periodic = false;
+//config.neighborhood = 'moore';
+config.neighborhood = 'vonNeumann';
+config.center = 100;
+config.size = 200;
+
+
+var toolbar = uiCreateToolbar();
+
+toolbar.on('change', () => {
+    config.center = Math.floor(config.size/2);
+    reload();
+});
+
+toolbar.addMonitor(stats, 'news', {
+  view: 'graph',
+  label: 'New cells',
+  min: 0,
+  max: 500,
+});
+
+toolbar.addMonitor(stats, 'news', {
+    label: 'New cells',
+});
+
+toolbar.addInput(config, 'neighborhood', {
+    label: 'Neighborhood:',
+    options: {
+        vonNeumann: 'vonNeumann',
+        moore: 'moore'
+    },
+});
+
+function eachCicle(){    
+    stats['news'] = news;
+    news = 0;
+}
+
+
+
+</script>
+
+</html>

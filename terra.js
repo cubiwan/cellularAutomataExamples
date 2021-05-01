@@ -291,7 +291,7 @@
     
       var canvas = createHDCanvas();
     
-      if (insertAfter) insertAfter.parentNode.insertBefore(canvas, insertAfter.nextSibling);
+      if (insertAfter) insertAfter.parentNode.insertBefore(canvas, insertAfter.nextSibling);      
       else document.body.appendChild(canvas);
     
       return canvas;
@@ -527,10 +527,10 @@
         if (grid) {
           self.grid = grid;
           self.draw();
+          if (fn) fn();
           if (++i !== steps) return self.nextFrame = requestAnimationFrame(tick);
         } // if grid hasn't changed || reached last step
-        self.nextFrame = false;
-        if (fn) fn();
+        self.nextFrame = false;       
       }
     
       if (typeof steps === 'function') {
