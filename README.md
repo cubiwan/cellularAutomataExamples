@@ -6,5 +6,5 @@ A few examples of cellular automata using terra.js and tweakpane
 * [Disease propagation](https://cubiwan.github.io/cellularAutomataExamples/disease.html)
 * [Random Walk](https://cubiwan.github.io/cellularAutomataExamples/randomWalk.html)
 * [Voronoi](https://cubiwan.github.io/cellularAutomataExamples/voronoi.html)
-* [Equilibrium](https://cubiwan.github.io/cellularAutomataExamples/equilibrium.html)
 * [Ulam Warburton](https://cubiwan.github.io/cellularAutomataExamples/UlamWarburton.html)
+* [Synchronization](https://cubiwan.github.io/cellularAutomataExamples/synchronization.html)
