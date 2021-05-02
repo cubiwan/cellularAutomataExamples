@@ -1,0 +1,93 @@
+<html>
+<script src="terra.js"></script>
+<script src="tweakpane-1.5.5.min.js"></script>
+<script src="terraUtils.js"></script>
+<link rel="stylesheet" href="terraUtils.css">
+
+
+<body>      
+</body>
+
+<script>
+
+var populationColor = [];
+populationColor["c2"] = 0;
+populationColor["c3"] = 0;
+populationColor["c4"] = 0;
+populationColor["c5"] = 0;
+
+terra.registerCA({
+    type: 'synchronization',
+    colorFn: function () {
+        populationColor["c"+this.color]++;
+        return colors[this.color]
+    },
+    process: function (neighbors, x, y) { 
+        this.color = neighborRandom(neighbors).creature.color;
+        return true;
+    }}, 
+    function () {    
+        if(worldStarted){
+            this.color = 0;
+        } else {    
+            this.color = intRandom(2,5);
+        }
+    }
+);
+
+config.grid = "synchronization";
+config.size = 40;
+config.cellSize = 10;
+
+var toolbar = uiCreateToolbar();
+
+var stats = [];
+stats["red"] = 0;
+stats["blue"] = 0;
+stats["lime"] = 0;
+stats["yellow"] = 0;
+
+function eachCicle(){    
+    stats["red"] = 100*populationColor["c2"]/config.population;
+    stats["blue"] = 100*populationColor["c3"]/config.population;
+    stats["lime"] = 100*populationColor["c4"]/config.population;
+    stats["yellow"] = 100*populationColor["c5"]/config.population;
+    populationColor["c2"] = 0;
+    populationColor["c3"] = 0;
+    populationColor["c4"] = 0;
+    populationColor["c5"] = 0;
+}
+
+toolbar.addMonitor(stats, 'red', {
+  view: 'graph',
+  label: '% Red',
+  min: 0,
+  max: 100,
+});
+
+toolbar.addMonitor(stats, 'blue', {
+  view: 'graph',
+  label: '% Blue',
+  min: 0,
+  max: 100,
+});
+
+toolbar.addMonitor(stats, 'lime', {
+  view: 'graph',
+  label: '% Lime',
+  min: 0,
+  max: 100,
+});
+
+toolbar.addMonitor(stats, 'yellow', {
+  view: 'graph',
+  label: '% Yellow',
+  min: 0,
+  max: 100,
+});
+
+
+
+</script>
+
+</html>
