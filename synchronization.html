@@ -23,7 +23,7 @@ terra.registerCA({
         return colors[this.color]
     },
     process: function (neighbors, x, y) { 
-        this.color = neighborRandom(neighbors).creature.color;
+        this.color = neighborRandomValue(neighbors, "color");
         return true;
     }}, 
     function () {    

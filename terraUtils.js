@@ -130,6 +130,9 @@ const BROWN = 18;
 const VIOLET = 19;
 const TURQUOISE = 20;
 
+function grayscale(v){
+    return v+","+v+","+v+",1";
+}
 
 /*************************************
  * 
@@ -262,10 +265,74 @@ function intRandom(min, max) {
  * 
 *************************************/
 
-
+//Return a random neighbour
 function neighborRandom(neighbors){
     var index = intRandom(0, neighbors.length-1);
     return neighbors[index];
+}
+
+//Return a random neighbour value
+function neighborRouletteRandomValue(neighbors, property){
+    return neighborRandom(neighbors).creature[property];
+}
+
+//Return a random neighbour with probability acording property value
+function neighborRouletteRandom(neighbors, property){
+    var summation = 0;
+    for(var i = 0; i < neighbors.length; ++i){
+        summation += neighbors[i].creature[property];
+    }
+
+    var rnd = intRandom(0, summation);
+    summation = 0;
+    for(var i = 0; i < neighbors.length; ++i){
+        summation += neighbors[i].creature[property];
+        if(summation >= rnd){
+            return neighbors[i];
+        }
+    }
+}
+
+//Return a random neighbour value with probability acording property value
+function neighborRouletteRandomValue(neighbors, property){
+    return neighborRouletteRandom(neighbors, property).creature[property];
+}
+
+//Return neighbor with max property value 
+function neighborsHigher(neighbors, property){ 
+    var maxValue = neighbors[0].creature[property];
+    var maxIndex = 0;
+
+    for(var i = 1; i < neighbors.length; ++i){
+        if(neighbors[i].creature[property] > maxValue){
+            maxValue = neighbors[i].creature[property];
+            maxIndex = i;
+        }
+    }
+    return neighbors[maxIndex];
+}
+
+function neighborsHigherValue(neighbors, property){ 
+    return neighborsHigher(neighbors, property).creature[property];
+}
+
+
+//Return neighbor with min property value 
+function neighborLower(neighbors, property){  
+    var minValue = neighbors[0].creature[property];
+    var minIndex = 0;
+
+    for(var i = 1; i < neighbors.length; ++i){
+        if(neighbors[i].creature[property] < minValue){
+            minValue = neighbors[i].creature[property];
+            minIndex = i;
+        }
+    }
+    return neighbors[minIndex];
+}
+
+function neighborLowerValue(neighbors, property){  
+    neighborLower(neighbors, property).creature[property];
 }
 
 //Counts how many neighbors has property equals to value
@@ -279,7 +346,7 @@ function neighborsCount(neighbors, property, value){
     return number;
 }
 
-//Counts how many neighbors return condition as true (condition is a function pass as parameter)
+//Counts how many neighbors return condition as true (condition is a function)
 function neighborsCondition(neighbors, condition){
     var number = 0;
     for(var i = 0; i < neighbors.length; ++i){
@@ -304,28 +371,6 @@ function neighborsMean(neighbors, property){
     return neighborsSummation(neighbors, property)/neighbors.length;
 }
 
-function neighborsHigher(neighbors, property){ 
-    var maxValue = neighbors[0].creature[property];
-
-    for(var i = 1; i < neighbors.length; ++i){
-        if(neighbors[i].creature[property] > maxValue){
-            maxValue = neighbors[i].creature[property];
-        }
-    }
-    return maxValue;
-}
-
-function neighborLower(neighbors, property){  
-    var minValue = neighbors[0].creature[property];
-
-    for(var i = 1; i < neighbors.length; ++i){
-        if(neighbors[i].creature[property] < minValue){
-            minValue = neighbors[i].creature[property];
-        }
-    }
-    return minValue;
-}
-
 function neighborsAndMe(neighbors, me, x, y){
     var meAsNeighbor = {creature: me, coords: {x: x, y: y}};
     var neighborsWithMe = [];
@@ -336,3 +381,6 @@ function neighborsAndMe(neighbors, me, x, y){
     return neighborsWithMe;
 }
 
+function getNeighborValue(neighbor, property){
+    return neighbor.creature[property];
+}

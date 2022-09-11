@@ -1,0 +1,101 @@
+<html>
+    <script src="terra.js"></script>
+    <script src="tweakpane-1.5.5.min.js"></script>
+    <script src="terraUtils.js"></script>
+    <link rel="stylesheet" href="terraUtils.css">
+
+<body>
+
+</body>
+
+<script>
+let mutPatterns = [1,2,4,8,16,32,64,128];
+
+terra.registerCA({
+    type: 'Evolution',
+    colorFn: function () {
+        return grayscale(this.gen);
+    },
+    process: function (neighbors, x, y) {
+        let neighbor;
+        let neighborGen;
+
+        if(config.fitnessType == 'hight'){
+            neighbor = neighborRouletteRandom(neighbors, 'gen');
+        } else if(config.fitnessType == 'low'){
+            neighbor = neighborRouletteRandom(neighbors, 'invgen');
+        } else if(config.fitnessType == 'two'){
+            if(x > config.size/2){
+                neighbor = neighborRouletteRandom(neighbors, 'gen');
+            } else {
+                neighbor = neighborRouletteRandom(neighbors, 'invgen');
+            }
+        }
+
+        neighborGen = getNeighborValue(neighbor, 'gen');
+        
+        //cross patterns
+        var crossg = 15;
+        var crossn = 240;
+
+        //mut pattern
+        var mut = withProbability(config.probMutation, mutPatterns[intRandom(0, 7)], 0);
+        this.gen = ((this.gen & crossg) | (neighborGen & crossn)) ^ mut;
+        this.invgen = 255 - this.gen;        
+        sumPop += this.gen;
+        return true;
+    }}, 
+    function () {
+        if(worldStarted){
+            this.gen = 0;
+            this.invgen = 255;
+        } else {
+            this.gen = intRandom(0, 127); //last bit always is 0
+            this.invgen = 255 - this.gen;
+        }
+    }
+);
+
+config.grid = "Evolution";
+config.size = 40;
+config.cellSize = 10;
+config.population = 40*40;
+config.probMutation = 0.01; //prob. of mutation
+config.fitnessType = 'hight';
+
+var toolbar = uiCreateToolbar();
+var sumPop = 0;
+var stats = [];
+stats["mean"] = 0;
+
+function eachCicle(){    
+    stats["mean"] = sumPop/config.population;
+    sumPop = 0;
+}
+
+toolbar.addInput(config, 'probMutation', {
+    label: '% Mutation:',
+    min: 0.00,
+    max: 5,
+    step: 0.01   
+});
+
+toolbar.addInput(config, 'fitnessType', {
+    label: 'Fitness:',
+    options: {
+        Hight: 'hight',
+        Low: 'low',
+        Two: 'two'        
+    },
+});
+
+toolbar.addMonitor(stats, 'mean', {
+    view: 'graph',
+    label: 'Mean Value Pob',
+    min: 0,
+    max: 255,
+});
+
+</script>
+
+</html>

@@ -36,7 +36,7 @@ terra.registerCA({
     },
     process: function (neighbors, x, y) {
         if(!this.stubborn){
-            this.color = neighborRandom(neighborsAndMe(neighbors, this)).creature.color;
+            this.color = neighborRandomValue(neighborsAndMe(neighbors, this), "color");
         }
         return true;
     }}, 
@@ -101,7 +101,7 @@ terra.registerCA({
     },
     process: function (neighbors, x, y) { 
         if(!this.stubborn){
-            this.color = neighborRandom(neighborsAndMe(neighbors, this)).creature.color;
+            this.color = neighborRandomValue(neighborsAndMe(neighbors, this), "color");
         }
         return true;
     }}, 
