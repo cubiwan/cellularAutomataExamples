@@ -272,7 +272,7 @@ function neighborRandom(neighbors){
 }
 
 //Return a random neighbour value
-function neighborRouletteRandomValue(neighbors, property){
+function neighborRandomValue(neighbors, property){
     return neighborRandom(neighbors).creature[property];
 }
 
@@ -312,6 +312,7 @@ function neighborsHigher(neighbors, property){
     return neighbors[maxIndex];
 }
 
+//Return max neighbor value for property
 function neighborsHigherValue(neighbors, property){ 
     return neighborsHigher(neighbors, property).creature[property];
 }
@@ -331,6 +332,7 @@ function neighborLower(neighbors, property){
     return neighbors[minIndex];
 }
 
+//Return min neighbor value for property
 function neighborLowerValue(neighbors, property){  
     neighborLower(neighbors, property).creature[property];
 }
@@ -371,6 +373,7 @@ function neighborsMean(neighbors, property){
     return neighborsSummation(neighbors, property)/neighbors.length;
 }
 
+//Return an array of neighbors including individual
 function neighborsAndMe(neighbors, me, x, y){
     var meAsNeighbor = {creature: me, coords: {x: x, y: y}};
     var neighborsWithMe = [];
