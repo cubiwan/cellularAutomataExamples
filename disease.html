@@ -161,7 +161,7 @@ function eachCicle(){
   stats.noInfectedPer = 100 * (config.population - (ills + recovered))/config.population;
   stats.recovered = recovered;
   stats.rt = config.r0 * (1 - ((ills+recovered)/config.population))
-  stats.herdImmunity = 1-(1/config.r0);
+  stats.herdImmunity = (config.r0-1)/config.r0;
   ills = 0;
   recovered = 0;
 }
